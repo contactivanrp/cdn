@@ -5,6 +5,26 @@ body {
 	cursor: progress;
 }
 
+.blink {
+	text-decoration: none;
+	font-family: "Poppins", sans-serif;
+	color: #ffffff;
+	background-color: #000000;
+	cursor: progress;
+}
+
+.blink:hover {
+	animation: pots 1s infinite;
+	opacity: 0;
+	animation-delay: 0s, 0.4s, 0.2s;
+}
+
+.blinking {
+	animation: pots 1s infinite;
+	opacity: 0;
+	animation-delay: 0s, 0.4s, 0.2s;
+}
+
 h1 {
 	font-style: normal;
 	font-weight: 700;
@@ -60,4 +80,25 @@ h1 {
 	100% {
 		opacity: 0;
 	}
+}
+
+@keyframes pots {
+	0% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+iframe {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	border: none;
 }
