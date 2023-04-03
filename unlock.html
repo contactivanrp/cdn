@@ -46,22 +46,40 @@
 			// Get the current date and time
 			const now = new Date();
 
-			// Find the next unlock time
-			const nextUnlock = data.find(({ date, start }) => {
-				const unlockDate = new Date(date + " " + start);
-				return unlockDate > now;
+			// Check if there is an ongoing unlock period
+			const currentUnlock = data.find(({ date, start, end }) => {
+				const unlockStart = new Date(date + " " + start);
+				const unlockEnd = new Date(date + " " + end);
+				return unlockStart <= now && now < unlockEnd;
 			});
 
-			// If there is a next unlock, update the button text and link
-			if (nextUnlock) {
-				const { date, start, reference } = nextUnlock;
+			if (currentUnlock) {
+				// If there is an ongoing unlock period, display the message
+				const { date, end, reference } = currentUnlock;
 				const button = document.getElementById("unlock");
-				button.innerText = `Unlock ${date} at ${start}`;
-				button.classList.remove("blink");
-				button.classList.add("blinking");
+				button.innerText = `Currently unlocked until ${end}`;
+				button.classList.remove("blinking");
+				button.classList.add("blink");
 				button.addEventListener("click", function () {
 					window.location.href = `https://spatial.sg/unlock?ref=${reference}`;
 				});
+			} else {
+				// Otherwise, find the next unlock time and display the message
+				const nextUnlock = data.find(({ date, start }) => {
+					const unlockDate = new Date(date + " " + start);
+					return unlockDate > now;
+				});
+
+				if (nextUnlock) {
+					const { date, start, reference } = nextUnlock;
+					const button = document.getElementById("unlock");
+					button.innerText = `Unlock ${date} at ${start}`;
+					button.classList.remove("blink");
+					button.classList.add("blinking");
+					button.addEventListener("click", function () {
+						window.location.href = `https://spatial.sg/unlock?ref=${reference}`;
+					});
+				}
 			}
 		</script>
 
