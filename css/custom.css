@@ -32,6 +32,13 @@ h1 {
 	line-height: 72px;
 }
 
+.big {
+	font-style: normal;
+	font-weight: 700;
+	font-size: 48px;
+	line-height: 72px;
+}
+
 .container {
 	border-style: solid;
 	border-width: 0px;
