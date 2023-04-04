@@ -12,23 +12,25 @@
 		<div class="container" style="height: 100vh; padding-top: 7vh; padding-bottom: 7vh">
 			<div class="row">
 				<p class="big">
-					<strong><span id="hour"></span><span class="blinking">:</span><span id="min"></span></strong>
-                </p>
+					<strong><span id="day"></span><span id="hour"></span><span class="blinking">:</span><span id="min"></span></strong>
+				</p>
 			</div>
 		</div>
 
 		<script>
-			// get the H1 element
+			// get the H1 and day elements
 			const currentHour = document.getElementById("hour");
 			const currentMin = document.getElementById("min");
+			const currentDay = document.getElementById("day");
 
-			// update the H1 element with the current time
+			// update the H1 and day elements with the current time and date
 			setInterval(() => {
 				const now = new Date();
 				let hours = now.getHours();
 				let minutes = now.getMinutes();
-				let seconds = now.getSeconds();
 				let meridiem = "AM";
+				let options = { weekday: "short", day: "numeric", month: "short" };
+                let formattedDate = now.toLocaleDateString("en-US", { weekday: "short" }).slice(0, 3) + " " + now.getDate() + " " + now.toLocaleDateString("en-US", { month: "short" }).slice(0, 3) + "  ";
 
 				if (hours >= 12) {
 					meridiem = "PM";
@@ -38,18 +40,20 @@
 					hours -= 12;
 				}
 
+				if (hours === 0) {
+					hours = 12;
+				}
+
 				if (minutes < 10) {
 					minutes = "0" + minutes;
 				}
 
-				if (seconds < 10) {
-					seconds = "0" + seconds;
-				}
-
 				currentHour.textContent = `${hours}`;
 				currentMin.textContent = `${minutes} ${meridiem}`;
+				currentDay.textContent = `${formattedDate.slice(0, -5)} ${formattedDate.slice(-5)}`;
 			}, 1000);
 		</script>
+        
 
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js" integrity="sha384-qKXV1j0HvMUeCBQ+QVp7JcfGl760yU08IQ+GpUo5hlbpg51QRiuqHAJz8+BrxE/N" crossorigin="anonymous"></script>
 	</body>
