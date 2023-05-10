@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>URL Editor</title>
+    <script>
+        // Function to update URL
+        function updateURL() {
+            // Get the current URL
+            var currentURL = window.location.href;
+
+            // Modify the URL by adding a query parameter
+            var newURL = 'www.google.com';
+
+            // Update the URL
+            window.history.pushState({}, '', newURL);
+        }
+    </script>
+</head>
+<body>
+    <h1>URL Editor</h1>
+    <button onclick="updateURL()">Update URL</button>
+</body>
+</html>

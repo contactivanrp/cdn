@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>PGP Message Verification</title>
+		<script src="https://unpkg.com/openpgp/dist/openpgp.min.js"></script>
+		<script>
+			function verifyMessage() {
+				// Get the public key and message with signature entered by the user
+				var publicKey = document.getElementById("public-key").value
+				var messageWithSignature = document.getElementById("message-with-signature").value
+
+				// Parse the public key and message with signature using OpenPGP.js
+				openpgp.key
+					.readArmored(publicKey)
+					.then(function (parsedPublicKey) {
+						openpgp.cleartext
+							.readArmored(messageWithSignature)
+							.then(function (parsedMessageWithSignature) {
+								// Verify the signature
+								openpgp
+									.verify({
+										message: parsedMessageWithSignature.text,
+										signature: parsedMessageWithSignature.signature,
+										verificationKeys: parsedPublicKey.keys,
+									})
+									.then(function (verified) {
+										// If the signature is valid, display a success message
+										if (verified.signatures[0].valid) {
+											document.getElementById("verification-result").innerHTML = "The message signature is valid."
+										}
+										// If the signature is invalid, display an error message
+										else {
+											document.getElementById("verification-result").innerHTML = "The message signature is invalid."
+										}
+									})
+									.catch(function (error) {
+										// If there was an error verifying the signature, display an error message
+										document.getElementById("verification-result").innerHTML = "There was an error verifying the message signature: " + error.message
+									})
+							})
+							.catch(function (error) {
+								// If there was an error parsing the message with signature, display an error message
+								document.getElementById("verification-result").innerHTML = "There was an error parsing the message with signature: " + error.message
+							})
+					})
+					.catch(function (error) {
+						// If there was an error parsing the public key, display an error message
+						document.getElementById("verification-result").innerHTML = "There was an error parsing the public key: " + error.message
+					})
+			}
+		</script>
+	</head>
+	<body>
+		<h1>PGP Message Verification</h1>
+
+		<p>Enter the public PGP key and message with signature to verify:</p>
+
+		<label for="public-key">Public Key:</label><br />
+		<textarea id="public-key" rows="10" cols="80"></textarea><br /><br />
+
+		<label for="message-with-signature">Message with Signature:</label><br />
+		<textarea id="message-with-signature" rows="10" cols="80"></textarea><br /><br />
+
+		<button onclick="verifyMessage()">Verify Signature</button><br /><br />
+
+		<div id="verification-result"></div>
+	</body>
+</html>
