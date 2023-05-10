@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Three.js Liquid Simulation</title>
+		<style>
+			body {
+				margin: 0;
+			}
+			canvas {
+				display: block;
+			}
+		</style>
+	</head>
+	<body>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
+		<script>
+			// Set up scene, camera, and renderer
+			const scene = new THREE.Scene()
+			const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+			const renderer = new THREE.WebGLRenderer()
+			renderer.setSize(window.innerWidth, window.innerHeight)
+			document.body.appendChild(renderer.domElement)
+
+			// Create particle geometry
+			const particleCount = 1000
+			const particles = new THREE.Geometry()
+			const particleMaterial = new THREE.PointsMaterial({ color: 0x0099ff })
+
+			// Generate random particles within a box
+			for (let i = 0; i < particleCount; i++) {
+				const particle = new THREE.Vector3(Math.random() * 10 - 5, Math.random() * 10 - 5, Math.random() * 10 - 5)
+				particles.vertices.push(particle)
+			}
+
+			// Create particle system
+			const particleSystem = new THREE.Points(particles, particleMaterial)
+			scene.add(particleSystem)
+
+			// Set up animation loop
+			function animate() {
+				requestAnimationFrame(animate)
+
+				// Update particle positions
+				for (let i = 0; i < particles.vertices.length; i++) {
+					const particle = particles.vertices[i]
+					particle.y -= 0.01 // Move particles downward to simulate liquid flow
+
+					// Reset particle position when it reaches the bottom
+					if (particle.y < -5) {
+						particle.y = 5
+					}
+				}
+				particles.verticesNeedUpdate = true // Update particle positions in the geometry
+
+				// Render the scene with the camera
+				renderer.render(scene, camera)
+			}
+
+			// Start the animation loop
+			animate()
+		</script>
+	</body>
+</html>
