@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Figtree" />
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Azeret+Mono" />
+		<link rel="stylesheet" href="customtimer.css" />
+	</head>
+	<body>
+		<background class="background" id="background"></background>
+		<controls>
+			<top class="hidden">
+				<p class="headingtext"><span>Current Time</span></p>
+				<p class="detailstext"><span id="currenttime">:</span></p>
+				<p class="buttontext"><span id="stoptime" onclick="stoptime('stoptime');">Stop time</span></p>
+			</top>
+			<mid>
+				<p id="taskInputParent">
+					<span><input class="headingtext" type="text" value="Timer for:" id="taskInput" onclick="newInput('taskInput');" onblur="updatetaskFields('taskInput');" style="width: 100%; text-align: center" /></span>
+				</p>
+				<p id="taskTitleParent" class="hidden headingtext">
+					<span id="tasktitle"></span>
+				</p>
+				<p id="inputgroup">
+					<span class="detailstext"><input class="detailstext" type="text" value="0" id="hoursInput" onclick="newInput('hoursInput');" onblur="updateFields('hoursInput');" /><span id="hoursTitle" class="hidden detailstext" style="width: 30px"></span> <span id="hoursstatic">Hours</span> <input class="detailstext" type="text" value="0" id="minsInput" onclick="newInput('minsInput');" onblur="updateFields('minsInput');" /><span id="minsTitle" class="hidden detailstext" style="width: 30px"></span> <span id="minsstatic">Minutes</span></span>
+				</p>
+				<p id="inputgroupover" class="hidden">
+					<span id="inputgrouptitle"></span>
+				</p>
+				<p class="buttontext"><span id="middle" onclick="buttonadvance();">Bon voyage!</span></p>
+			</mid>
+			<bottom class="hidden">
+				<p><span class="headingtext">End Time</span></p>
+				<p><span class="detailstext" id="newtime">In the future...</span></p>
+				<p class="buttontext"><span id="sound" onclick="sound('sound');">Sound: ON</span></p>
+			</bottom>
+			<audio id="timeraudio" loop>
+				<source src="radar.mp3" type="audio/mpeg" />
+			</audio>
+		</controls>
+		<script>
+			let timerPaused = false;
+			let timerState = 0;
+			let soundState = true;
+			let displayActive = false;
+			let texthours = 0;
+			let textmins = 0;
+			let texttotalmins = 0;
+			let remainingmins = 0;
+			let texttask = "";
+			let tempValue = "";
+			let hoursremaining = 0;
+			let minsremaining = 0;
+			let totalremainingmins = 0;
+			let viewHeightValue = 0;
+			let count = 0;
+
+			function timerRun() {
+				const hoursstatic = document.getElementById("hoursstatic");
+				const hoursTitle = document.getElementById("hoursTitle");
+				const minsstatic = document.getElementById("minsstatic");
+
+				if (hoursremaining <= 0) {
+					hoursTitle.classList.add("hidden");
+					hoursstatic.classList.add("hidden");
+				} else {
+					hoursTitle.classList.remove("hidden");
+					hoursstatic.classList.remove("hidden");
+				}
+
+				if (hoursremaining == 1) {
+					hoursstatic.textContent = "Hour";
+				} else {
+					hoursstatic.textContent = "Hours";
+				}
+
+				if (minsremaining == 1) {
+					minsstatic.textContent = "Minute";
+				} else {
+					minsstatic.textContent = "Minutes";
+				}
+			}
+
+			function reduceRemaining() {
+				const thebackground = document.getElementById("background");
+				let viewHeightValue = "";
+				if (timerState == 1) {
+					if (count == 60) {
+						minsremaining -= 1;
+						timerRun();
+						count = 0;
+						if (minsremaining < 1) {
+							if (hoursremaining > 0) {
+								hoursremaining -= 1;
+								minsremaining += 60;
+							} else {
+								timerstate(3);
+								return;
+							}
+						}
+					}
+					count += 1;
+
+					document.getElementById("hoursTitle").textContent = hoursremaining;
+					document.getElementById("minsTitle").textContent = minsremaining;
+
+					totalremainingmins = (minsremaining + hoursremaining * 60) * 60 - count;
+
+					viewHeightValue = 100 - (totalremainingmins / (texttotalmins * 60)) * 100;
+					thebackground.style.height = `${viewHeightValue}vh`;
+
+					console.log(totalremainingmins);
+				}
+			}
+
+			function calTime() {
+				if (timerState == 0) {
+					const hoursInput = document.getElementById("hoursInput");
+					const minsInput = document.getElementById("minsInput");
+
+					let newHours = hoursInput.value;
+					let newMins = minsInput.value;
+
+					if (newHours == "") {
+						newHours = 0;
+					}
+
+					if (newMins == "") {
+						newMins = 0;
+					}
+
+					newHours = parseInt(newHours);
+					newMins = parseInt(newMins);
+
+					const currentDate = new Date();
+					const currentMinutes = String(currentDate.getMinutes()).padStart(2, "0");
+					const currentHours = String(currentDate.getHours()).padStart(2, "0");
+					const currentSeconds = String(currentDate.getSeconds()).padStart(2, "0");
+
+					if (newHours == 0 && newMins == 0) {
+						document.getElementById("newtime").textContent = "In the future...";
+					} else {
+						newHours += parseInt(currentHours);
+						newMins += parseInt(currentMinutes);
+
+						if (newMins >= 59) {
+							newHours += 1;
+							newMins -= 60;
+						}
+
+						if (newHours >= 24) {
+							newHours -= 24;
+						}
+
+						let newTime = `${newHours}:${newMins}`;
+						document.getElementById("newtime").textContent = newTime;
+					}
+				}
+			}
+
+			function timerstate(pushstate) {
+				const backgroundElement = document.querySelector(".background");
+				const inputElement = document.getElementById("taskInput");
+				const inputElementParent = document.getElementById("taskInputParent");
+				const taskTitleParent = document.getElementById("taskTitleParent");
+
+				const hoursInput = document.getElementById("hoursInput");
+				const minsInput = document.getElementById("minsInput");
+
+				const inputgroup = document.getElementById("inputgroup");
+				const inputgroupover = document.getElementById("inputgroupover");
+				const inputgrouptitle = document.getElementById("inputgrouptitle");
+				const hoursstatic = document.getElementById("hoursstatic");
+
+				if (pushstate == 0) {
+					count = 0;
+					timerState = 0;
+					const thebackground = document.getElementById("background");
+					// start state
+					thebackground.style.height = `${viewHeightValue}vh`;
+					timerend();
+					backgroundElement.classList.remove("blink");
+
+					inputElementParent.classList.remove("hidden");
+					taskTitleParent.classList.add("hidden");
+					hoursInput.classList.remove("hidden");
+					minsInput.classList.remove("hidden");
+					hoursTitle.classList.add("hidden");
+					minsTitle.classList.add("hidden");
+					hoursstatic.classList.remove("hidden");
+
+					document.getElementById("middle").textContent = "Bon voyage!";
+				} else if (pushstate == 1) {
+					timerState = 1;
+					// progress state
+
+					let temphourslog = document.getElementById("hoursInput").value;
+					let tempminslog = document.getElementById("minsInput").value;
+
+					if (temphourslog == "") {
+						temphourslog = 0;
+					}
+
+					if (tempminslog == "") {
+						tempminslog = 0;
+					}
+
+					hoursremaining = parseInt(temphourslog);
+					minsremaining = parseInt(tempminslog);
+
+					texttotalmins = minsremaining + hoursremaining * 60;
+
+					texttask = inputElement.value;
+					document.getElementById("tasktitle").textContent = texttask;
+					texthours = hoursInput.value;
+					document.getElementById("hoursTitle").textContent = texthours;
+					textmins = minsInput.value;
+					document.getElementById("minsTitle").textContent = textmins;
+
+					inputElementParent.classList.add("hidden");
+					taskTitleParent.classList.remove("hidden");
+					hoursInput.classList.add("hidden");
+					minsInput.classList.add("hidden");
+					hoursTitle.classList.remove("hidden");
+					minsTitle.classList.remove("hidden");
+
+					document.getElementById("middle").textContent = "On to the next!";
+
+					timerRun();
+				} else if (pushstate == 2) {
+					timerState = 2;
+					// pause state
+				} else if (pushstate == 3) {
+					timerState = 3;
+					// end state
+					timerend();
+					backgroundElement.classList.add("blink");
+					document.getElementById("middle").textContent = "On to the next!";
+				} else {
+					console.log("invalid pushstate");
+				}
+			}
+
+			function buttonadvance() {
+				const minsInput = document.getElementById("minsInput");
+				if (timerState == 0) {
+					let temphourslog = document.getElementById("hoursInput").value;
+					let tempminslog = document.getElementById("minsInput").value;
+
+					if (temphourslog == "") {
+						temphourslog = 0;
+					}
+
+					if (tempminslog == "") {
+						tempminslog = 0;
+					}
+
+					hoursremaining = parseInt(temphourslog);
+					minsremaining = parseInt(tempminslog);
+
+					texttotalmins = minsremaining + hoursremaining * 60;
+
+					if (texttotalmins == "") {
+						minsInput.value = "15";
+					}
+					timerstate(1);
+				} else if (timerState == 1) {
+					timerstate(0);
+				} else if (timerState == 3) {
+					timerstate(0);
+				} else {
+					console.log("invalid advance");
+				}
+			}
+
+			timerstate(0);
+
+			function timerend() {
+				const audioElement = document.getElementById("timeraudio");
+				if (soundState == true && timerState == 3) {
+					audioElement.currentTime = 0;
+					audioElement.play();
+				} else {
+					audioElement.pause();
+				}
+			}
+
+			function stoptime(inputId) {
+				if (timerPaused == false) {
+					timerPaused = true;
+					document.getElementById(inputId).textContent = "Unfreeze time";
+				} else {
+					timerPaused = false;
+					document.getElementById(inputId).textContent = "Stop time";
+				}
+			}
+
+			function sound(inputId) {
+				if (soundState == true) {
+					soundState = false;
+					document.getElementById(inputId).textContent = "Sound: OFF";
+				} else {
+					soundState = true;
+					document.getElementById(inputId).textContent = "Sound: ON";
+				}
+
+				timerend();
+			}
+
+			function updateFields(inputId) {
+				const inputElement = document.getElementById(inputId);
+				const hoursstatic = document.getElementById("hoursstatic");
+				const minsstatic = document.getElementById("minsstatic");
+				const hoursInput = document.getElementById("hoursInput");
+				const minsInput = document.getElementById("minsInput");
+				if (inputElement.value == "") {
+					if (tempValue == "") {
+						inputElement.value = "0";
+					} else {
+						inputElement.value = tempValue;
+					}
+				}
+
+				if (inputId == "hoursInput") {
+					if (inputElement.value > 24) {
+						inputElement.value = 24;
+					}
+				}
+
+				if (inputId == "minsInput") {
+					if (inputElement.value > 59) {
+						inputElement.value = 59;
+					}
+				}
+
+				if (hoursInput.value == 1) {
+					hoursstatic.textContent = "Hour";
+				} else {
+					hoursstatic.textContent = "Hours";
+				}
+
+				if (minsInput.value == 1) {
+					minsstatic.textContent = "Minute";
+				} else {
+					minsstatic.textContent = "Minutes";
+				}
+			}
+
+			function updatetaskFields(inputId) {
+				const inputElement = document.getElementById(inputId);
+				if (inputElement.value == "") {
+					if (tempValue == "") {
+						inputElement.value = "Timer for:";
+					} else {
+						inputElement.value = tempValue;
+					}
+				}
+			}
+
+			function newInput(inputId) {
+				const inputElement = document.getElementById(inputId);
+
+				tempValue = inputElement.value;
+				inputElement.value = "";
+			}
+
+			// Function to update the clock
+			function updateClock() {
+				const currentDate = new Date();
+				const currentMinutes = String(currentDate.getMinutes()).padStart(2, "0");
+				const currentHours = String(currentDate.getHours()).padStart(2, "0");
+				const currentSeconds = String(currentDate.getSeconds()).padStart(2, "0");
+
+				const currentTimeMinutes = `${currentHours}:${currentMinutes}`;
+				const currentTimeSeconds = `${currentHours}:${currentMinutes}:${currentSeconds}`;
+				document.getElementById("currenttime").textContent = currentTimeMinutes;
+			}
+
+			// Call the updateClock function every second
+			setInterval(updateClock, 1000);
+			setInterval(calTime, 1000);
+
+			setInterval(reduceRemaining, 1000); // 60 * 1000 milsec
+		</script>
+	</body>
+</html>
