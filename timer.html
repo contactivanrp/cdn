@@ -3,7 +3,8 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Document</title>
+		<title>Timer</title>
+		<link rel="icon" type="image/png" href="emote.png" />
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Figtree" />
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Azeret+Mono" />
 		<link rel="stylesheet" href="customtimer.css" />
@@ -26,8 +27,8 @@
 				<p id="inputgroup">
 					<span class="detailstext"><input class="detailstext" type="text" value="0" id="hoursInput" onclick="newInput('hoursInput');" onblur="updateFields('hoursInput');" /><span id="hoursTitle" class="hidden detailstext" style="width: 30px"></span> <span id="hoursstatic">Hours</span> <input class="detailstext" type="text" value="0" id="minsInput" onclick="newInput('minsInput');" onblur="updateFields('minsInput');" /><span id="minsTitle" class="hidden detailstext" style="width: 30px"></span> <span id="minsstatic">Minutes</span></span>
 				</p>
-				<p id="inputgroupover" class="hidden">
-					<span id="inputgrouptitle"></span>
+				<p id="inputgroupover" class="detailstext hidden">
+					<span id="inputgrouptitle">YOO-HOO!</span>
 				</p>
 				<p class="buttontext"><span id="middle" onclick="buttonadvance();">Bon voyage!</span></p>
 			</mid>
@@ -183,6 +184,8 @@
 					timerend();
 					backgroundElement.classList.remove("blink");
 
+					inputgroup.classList.remove("hidden");
+					inputgroupover.classList.add("hidden");
 					inputElementParent.classList.remove("hidden");
 					taskTitleParent.classList.add("hidden");
 					hoursInput.classList.remove("hidden");
@@ -236,6 +239,8 @@
 					timerState = 3;
 					// end state
 					timerend();
+					inputgroup.classList.add("hidden");
+					inputgroupover.classList.remove("hidden");
 					backgroundElement.classList.add("blink");
 					document.getElementById("middle").textContent = "On to the next!";
 				} else {
